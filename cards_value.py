@@ -56,5 +56,38 @@ def image_name(self) -> str:
     return self.display_name.lower()
 
 
+@dataclass(frozen=True)
+class Card:
+    """This class represents a standard playing card. Rank  and suit may be enum values such as Card (A,S). The stored values are always Rank and Suit."""
+    rank: Rank
+    suit: Suit
+
+    def __post_init__(self) -> None:
+        try:
+            object.__setattr__(self, "rank", Rank(self.rank))
+            object.__setattr__(self, "suit", Suit(self.suit))
+        except ValueError as exc:
+            raise ValueError("Card rank or suit is not recognized") from exc
+
+        @property
+        def value(self) -> int:
+            """Blackjack value when an ace is initially counted as 11."""
+            return rank_value(self.rank)
+
+        @property
+        def short_code(self) -> str:
+            return f"{self.rank.value}{self.suit.value}"
+
+        @property
+        def display_name(self) -> str:
+            return f"{self.rank.display_name} of {self.suit.display_name}"
+
+        @property
+        def display_text(self) -> str:
+            return f"{self.rank.value}{self.suit.symbol}"
+
+        @property
+        def image_key(self) -> str:
+            return f"{self.rank.image_name}_of_{self.suit.name.lower()}"
 
 
